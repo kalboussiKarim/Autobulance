@@ -17,9 +17,10 @@ return new class extends Migration
             $table->timestamp('affected_at');
             $table->timestamp('detached_at')->nullable()->default(null);
             $table->primary(['staff_id', 'autobulance_id', 'affected_at']);
-            $table->foreign('staff_id')->references('id')->on('staff');
-            $table->foreign('autobulance_id')->references('id')->on('autobulances');
+            $table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');
+            $table->foreign('autobulance_id')->references('id')->on('autobulances')->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

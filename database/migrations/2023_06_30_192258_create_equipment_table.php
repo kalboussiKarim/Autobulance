@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->bigInteger('stock');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

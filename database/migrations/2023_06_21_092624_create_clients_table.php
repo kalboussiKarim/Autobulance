@@ -22,6 +22,7 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female']);
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

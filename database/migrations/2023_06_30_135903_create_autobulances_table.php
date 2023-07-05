@@ -16,8 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('state_id');
             $table->string('matricule')->unique();
             $table->string('phone');
-            $table->foreign('state_id')->references('id')->on('states');
+            $table->foreign('state_id')->references('id')->on('states')->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

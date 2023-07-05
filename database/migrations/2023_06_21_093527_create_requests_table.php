@@ -22,8 +22,9 @@ return new class extends Migration
             $table->date('date');
             $table->foreign('client_id')
                 ->references('id')
-                ->on('clients');
+                ->on('clients')->onDelete('cascade');;
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

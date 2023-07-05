@@ -16,9 +16,10 @@ return new class extends Migration
             $table->unsignedBigInteger('autobulance_id');
             $table->unsignedBigInteger('request_id');
             $table->enum('state', ['done', 'to do', 'canceled', 'in progress']);
-            $table->foreign('autobulance_id')->references('id')->on('autobulances');
-            $table->foreign('request_id')->references('id')->on('requests');
+            $table->foreign('autobulance_id')->references('id')->on('autobulances')->onDelete('cascade');
+            $table->foreign('request_id')->references('id')->on('requests')->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -21,9 +21,10 @@ return new class extends Migration
             $table->string('position');
             $table->date('date_of_birth');
             $table->decimal('salary', 8, 2);
-            $table->foreign('role_id')->references('id')->on('roles');
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

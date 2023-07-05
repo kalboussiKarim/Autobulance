@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreign('breakdown_id')->references('id')->on('breakdowns')->onDelete('cascade'); //ondelte ya kerimos
             $table->foreign('request_id')->references('id')->on('requests')->onDelete('cascade'); //same 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
