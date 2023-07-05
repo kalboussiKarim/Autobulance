@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Autobulance extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory/*, SoftDeletes*/;
 
     /**
      * The attributes that are mass assignable.

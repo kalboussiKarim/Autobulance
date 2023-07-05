@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('phone');
             $table->foreign('state_id')->references('id')->on('states')->onDelete('cascade');
             $table->timestamps();
-            $table->softDeletes();
+            //$table->softDeletes();
         });
     }
 
