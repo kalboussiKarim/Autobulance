@@ -19,25 +19,19 @@ class AutobulanceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function adminAutobulances()
     {
-
         $admin = Auth::guard('staff')->user();
-        $autobulances = Autobulance::join('transaction_reparateurs', 'transaction_reparateurs.autobulance_id', '=', 'autobulance.id')
+        $autobulances = Autobulance::join('transaction_reparateurs', 'transaction_reparateurs.autobulance_id', '=', 'autobulances.id')
             ->where('transaction_reparateurs.staff_id', $admin['id'])
-            ->where('transaction_reparateurs.detached_at', '=', null)->get();
-        if (!$autobulances) {
+            ->where('transaction_reparateurs.detached_at', '=', null)
+            ->get();
+        if ($autobulances->count() == 0) {
             return $this->error('', 'This admin is not responsable for any autobulance', 401);
         }
         return $this->success([
             'autobulances' => $autobulances,
         ], "Autobulance found successfully", 201);
-        /************** old version *********************
-        $autobulances = Autobulance::all();
-        return $this->success([
-            'autobulances' => $autobulances,
-        ], 201);
-         */
     }
 
 
@@ -57,22 +51,8 @@ class AutobulanceController extends Controller
             'phone' => $request->phone,
             'state_id' => $state->id,
         ]);
-        $admin = Auth::guard('staff')->user();
-        $autoublnace_Already_Administrated = TransactionReparateur::join('staff', 'transaction_reparateurs.staff_id', '=', 'staff.id')
-            ->join('roles', 'staff.role_id', '=', 'roles.id')
-            ->where('roles.name', 'admin')
-            ->where('autobulance_id', $autobulance['id'])->where('detached_at', null)->count();
-        if ($autoublnace_Already_Administrated) {
-            return $this->error('', 'This autobulance is already affected to another admin', 401);
-        }
-        $affect_Autobulance_To_Admin = TransactionReparateur::create([
-            'staff_id' => $admin['id'],
-            'autobulance_id' => $autobulance['id'],
-            'affected_at' => Carbon::now(),
-        ]);
         return $this->success([
             'autobulance' => $autobulance,
-            'transaction' => $affect_Autobulance_To_Admin,
         ], "Autobulance stored successfully", 201);
     }
 
@@ -85,15 +65,20 @@ class AutobulanceController extends Controller
         if (!$autobulance) {
             return $this->error('', 'The autobulance you specified doesn\'t exist', 401);
         }
-        $admin = Auth::guard('personnel')->user();
-        $autobulance = Autobulance::join('transaction_reparateurs', 'transaction_reparateurs.autobulance_id', '=', 'autobulances.id')
+        $admin = Auth::guard('staff')->user();
+        $autobulance_admin = Autobulance::join('transaction_reparateurs', 'transaction_reparateurs.autobulance_id', '=', 'autobulances.id')
             ->where('transaction_reparateurs.staff_id', $admin['id'])
             ->where('transaction_reparateurs.detached_at', null)
             ->where('transaction_reparateurs.autobulance_id', $autobulance_id)->first();
+        if (!$autobulance_admin) {
+            return $this->error('', 'The autobulance you specified doesn\'t exist', 401);
+        }
         return $this->success([
             'autobulance' => $autobulance,
         ], "Autobulance found successfully", 201);
     }
+
+
 
     public function updateStatus($autobulance_id, $status_id)
     {
@@ -104,6 +89,13 @@ class AutobulanceController extends Controller
         $state = State::find($status_id);
         if (!$state) {
             return $this->error('', 'State doesn\'t exist', 401);
+        }
+        $admin = Auth::guard('staff')->user();
+        $transaction = TransactionReparateur::where('staff_id', $admin['id'])
+            ->where('detached_at', null)
+            ->where('autobulance_id', $autobulance_id)->first();
+        if (!$transaction) {
+            return $this->error('', 'The Autobulance you want to update its status doesn\'t exist', 401);
         }
         $autobulance->update([
             "state_id" => $state->id,
@@ -120,7 +112,15 @@ class AutobulanceController extends Controller
         if (!$state) {
             return $this->error('', 'the status you specified doesn\'t exist', 401);
         }
-        $autobulances = Autobulance::where('state_id', $state->id)->get();
+        $admin = Auth::guard('staff')->user();
+        $autobulances = Autobulance::join('transaction_reparateurs', 'transaction_reparateurs.autobulance_id', '=', 'autobulances.id')
+            ->where('transaction_reparateurs.staff_id', $admin['id'])
+            ->where('transaction_reparateurs.detached_at', null)
+            ->where('state_id', $state->id)
+            ->get();
+        if ($autobulances->count() == 0) {
+            return $this->error('', 'No autobulances with that state are found', 401);
+        }
         return $this->success([
             'autobulances' => $autobulances,
         ], "Autobulances found successfully", 201);
@@ -135,17 +135,12 @@ class AutobulanceController extends Controller
         if (!$autobulance) {
             return $this->error('', 'the autobulance you want to edit doesn\'t exist', 401);
         }
-        $admin = Auth::guard('personnel')->user();
-        $autoublnace_Already_Administrated = TransactionReparateur::where('personnel_id', $admin['id'])
+        $admin = Auth::guard('staff')->user();
+        $transaction = TransactionReparateur::where('staff_id', $admin['id'])
             ->where('autobulance_id', $autobulance_id)
-            ->where('detached_at', null)
-            ->count();
-        if ($autoublnace_Already_Administrated) {
-            $new_data = $request->validated();
-            $autobulance->update($new_data);
-            return $this->success([
-                'autobulance' => $autobulance,
-            ], "Autobulance updated successfully", 201);
+            ->where('detached_at', null)->first();
+        if (!$transaction) {
+            return $this->error('', 'The Autobulance you want to edit doesn\'t exist', 401);
         }
         $new_data = $request->validated();
         $autobulance->update($new_data);
@@ -162,11 +157,22 @@ class AutobulanceController extends Controller
      */
     public function destroy($autobulance_id)
     {
+
         $autobulance = Autobulance::find($autobulance_id);
         if (!$autobulance) {
             return $this->error('', 'the autobulance you want to delete doesn\'t exist', 401);
         }
-        $autobulance->delete();
+        $admin = Auth::guard('staff')->user();
+        $transaction = TransactionReparateur::where('staff_id', $admin['id'])
+            ->where('detached_at', null)
+            ->where('autobulance_id', $autobulance_id)->first();
+        if (!$transaction) {
+            return $this->error('', 'The Autobulance you want to delete doesn\'t exist', 401);
+        }
+        $transaction->update([
+            'detached_at' => Carbon::now(),
+        ]);
+        $autobulance->delete(); /* problem 9ad rasek ya abir 5ater el history bech yetfasa5*/
         return $this->success([], "Autobulance deleted successfully", 201);
     }
 }

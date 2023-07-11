@@ -29,7 +29,7 @@ class AutoMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Abir Mail',
+            subject: 'Registration mail',
         );
     }
 

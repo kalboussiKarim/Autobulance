@@ -24,13 +24,6 @@ class StaffController extends Controller
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     public function login(LoginStaffRequest $request)
     {
@@ -41,9 +34,9 @@ class StaffController extends Controller
             return $this->error('', 'Credentials do not match', 401);
         }
         return $this->success([
-            'client' => $staff,
+            'staff' => $staff,
             'token' => $staff->createToken('staff-token')->plainTextToken,
-        ], "Client logged in successfully");
+        ], "Staff memeber logged in successfully");
     }
 
     /**
@@ -57,10 +50,6 @@ class StaffController extends Controller
         if (!$role) {
             return $this->error('', 'the role you specified doesn\'t exist', 401);
         }
-        /*$staff = Staff::where('email',$request->email)->first();
-        if($staff){
-            return $this->error('', 'Staff already exists', 401);
-        }*/
         $staff_member = Staff::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -71,8 +60,8 @@ class StaffController extends Controller
             'position' => $request->position,
             'password' => Hash::make($request->password),
         ]);
-        $mailer =  new MailController();
-        $mailer->index($request);
+        //$mailer =  new MailController();
+        //$mailer->index($request);
         return $this->success([
             'staff_member' => $staff_member,
             'token' => $staff_member->createToken('staff-token')->plainTextToken,
@@ -82,29 +71,72 @@ class StaffController extends Controller
 
     public function logout()
     {
-        //return response()->json('Logout function');
         $staff = Auth::guard('staff')->user();
         if ($staff) {
             $staff->tokens()->where('name', 'staff-token')->delete();
             return $this->success([
                 'message' => 'You have succesfully been logged out as a staff and your token(s) has been removed'
             ]);
+        } else {
+            return $this->error('', 'The staff member is not logged in', 401);
         }
     }
     /**
      * Display the specified resource.
      */
-    public function show(Staff $staff)
+    public function show($staff_id)
     {
-        //
+        $staff = Staff::find($staff_id);
+        if (!$staff) {
+            return $this->error('', 'Staff not found or invlaid staff id', 401);
+        }
+        return $this->success([
+            'staff' => $staff,
+        ], "Staff found");
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Staff $staff)
+    public function edit(UpdateStaffRequest $request, $staff_id)
     {
-        //
+        $staff = Staff::find($staff_id);
+        if (!$staff) {
+            return $this->error('', 'The staff you want to edit is not found', 401);
+        }
+        $role = Role::where('name', $request->role)->first();
+        if (!$role) {
+            return $this->error('', 'the role you specified doesn\'t exist', 401);
+        }
+        $staff->role_id = $role['id'];
+        $staff->save();
+        $new_data = $request->validated();
+        $staff->update($new_data);
+        return $this->success([
+            'staff' => $staff,
+        ], "Staff updated successfully");
+    }
+
+
+
+    public function showProfile($staff_id)
+    {
+        if (Auth::guard('staff')->user()->id !== (int)$staff_id) {
+            return $this->error('', 'You are unauthorized to make this request', 401);
+        }
+        $staff = Auth::guard('staff')->user();
+        if (!$staff) {
+            return $this->error('', 'staff not found', 401);
+        }
+        return $this->success([
+            'staff' => $staff,
+        ], "Staff profile found");
+    }
+
+    public function getAutobulances()
+    {
+        $staff = Auth::guard('staff')->user();
+        return $staff->autobulances;
     }
 
     /**

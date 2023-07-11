@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transaction_reparateurs', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('staff_id');
             $table->unsignedBigInteger('autobulance_id');
             $table->timestamp('affected_at');
             $table->timestamp('detached_at')->nullable()->default(null);
-            $table->primary(['staff_id', 'autobulance_id', 'affected_at']);
+            //$table->primary(['staff_id', 'autobulance_id', 'affected_at']);
             $table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');
             $table->foreign('autobulance_id')->references('id')->on('autobulances')->onDelete('cascade');
             $table->timestamps();

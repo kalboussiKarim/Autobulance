@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Breakdown;
 use App\Http\Requests\StoreBreakdownRequest;
-use App\Http\Requests\UpdateBreakdownRequest;
 use App\Traits\HttpResponses;
+use Illuminate\Support\Facades\DB;
 
 class BreakdownController extends Controller
 {
@@ -16,7 +16,9 @@ class BreakdownController extends Controller
     public function index()
     {
         $breakdowns = Breakdown::all();
-        return response()->json(['data' => $breakdowns], 200);
+        return $this->success([
+            'breakdowns' => $breakdowns,
+        ]);
     }
 
     public function search($url)
@@ -24,13 +26,6 @@ class BreakdownController extends Controller
         return Breakdown::where("breakdown", "like", "%" . $url . "%")->get();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -91,5 +86,24 @@ class BreakdownController extends Controller
         }
         $breakdown->delete();
         return $this->success([], "Breakdown deleted successfully");
+    }
+
+
+
+    public function avg()
+    {
+
+        $total =  DB::table('breakdown_requests')
+            ->select(DB::raw('COUNT(breakdown_requests.id)  AS  nb '))
+            ->pluck('nb')
+            ->first();
+
+        $averages = DB::table('breakdown_requests')
+            ->join('breakdowns', 'breakdown_requests.breakdown_id', '=', 'breakdowns.id')
+            ->select('breakdowns.breakdown', DB::raw('COUNT(breakdown_requests.request_id)  /' . $total . ' * 100 as average'))
+            ->groupBy('breakdowns.breakdown')
+            ->get();
+
+        return response()->json($averages);
     }
 }

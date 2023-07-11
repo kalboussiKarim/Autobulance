@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRequestRequest extends FormRequest
+class AdminStoreRequestRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,7 @@ class StoreRequestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //'client_id' => ['required', 'string'],
+            'client_id' => ['required', 'string'],
             'car_type' => ['required', 'string'],
             'matricule' => ['required', 'string'],
             'latitude' => ['required', 'string'],
@@ -34,7 +34,8 @@ class StoreRequestRequest extends FormRequest
     public function messages()
     {
         return [
-            //'client_id.required' => 'The client ID field is required.',
+            'client_id.required' => 'The client ID field is required.',
+            'client_id.string' => 'The client ID must be a string.',
             'car_type.required' => 'The car type field is required.',
             'car_type.string' => 'The car type must be a string.',
             'matricule.required' => 'The matricule field is required.',

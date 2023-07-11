@@ -10,6 +10,7 @@ use App\Traits\HttpResponses;
 class RoleController extends Controller
 {
     use HttpResponses;
+
     /**
      * Display a listing of the resource.
      */
@@ -18,16 +19,9 @@ class RoleController extends Controller
         $roles = Role::all();
         return $this->success([
             'Roles' => $roles,
-        ],);
+        ], "All Roles");
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -46,26 +40,33 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Role $role)
+    public function show($role_id)
     {
-        //
+        $role = Role::find($role_id);
+        if (!$role) {
+            return $this->error('', 'Role not found or invlaid Role id', 401);
+        }
+        return $this->success([
+            'role' => $role,
+        ], "role found");
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Role $role)
+    public function edit(UpdateRoleRequest $request, $role_id)
     {
-        //
+        $role = Role::find($role_id);
+        if (!$role) {
+            return $this->error('', 'The role you want to update is not found', 401);
+        }
+        $new_data = $request->validated();
+        $role->update($new_data);
+        return $this->success([
+            'role' => $role,
+        ], "Role updated successfully");
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateRoleRequest $request, Role $role)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.

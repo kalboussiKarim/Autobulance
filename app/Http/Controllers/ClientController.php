@@ -16,18 +16,17 @@ class ClientController extends Controller
     use HttpResponses;
 
 
-
-    public function showAll()
+    //only admins can execute this function
+    public function index()
     {
         $clients = Client::all();
-        return response()->json(['data' => $clients], 200);
+        return $this->success([
+            'clients' => $clients,
+        ], "All Clients");
     }
 
-    public function search($url)
-    {
-        return Client::where("full_name", "like", "%" . $url . "%")->get();
-    }
 
+    //anyone can excute this 
     public function register(StoreClientRequest $request)
     {
         // return response()->json('Register functiton');
@@ -47,6 +46,7 @@ class ClientController extends Controller
         ], "Client registration was successful", 201); //200 ya3ni success et 201 ya3ni success + created
     }
 
+    //anyone can excute this 
     public function login(LoginClientRequest $request)
     {
         //return response()->json('Login function');
@@ -61,29 +61,73 @@ class ClientController extends Controller
         ], "Client logged in successfully");
     }
 
-
+    //executed by logged in clients only
     public function logout()
     {
         //return response()->json('Logout function');
         $client = Auth::guard('client')->user();
         if ($client) {
             $client->tokens()->where('name', 'client-token')->delete();
-            return $this->success([
-                'message' => 'You have succesfully been logged out as a client and your token(s) has been removed'
-            ]);
+            return $this->success([], "You have succesfully been logged out as a client and your token(s) has been removed");
+        } else {
+            return $this->error('', 'The client is not logged in', 401);
         }
     }
 
 
-    public function show($url)
+    public function edit(UpdateClientRequest $request, $client_id)
     {
-        if (Auth::guard('client')->user()->id !== (int)$url) {
+        $client = Client::find($client_id);
+        if (!$client) {
+            return $this->error('', 'The client you want to edit is not found', 401);
+        }
+        $new_data = $request->validated();
+        $client->update($new_data);
+        return $this->success([
+            'client' => $client,
+        ], "Client updated successfully");
+    }
+
+    public function show($client_id)
+    {
+        $client = Client::find($client_id);
+        if (!$client) {
+            return $this->error('', 'Client not found or invlaid Client id', 401);
+        }
+        return $this->success([
+            'client' => $client,
+        ], "Client found");
+    }
+
+
+    public function destroy($client_id)
+    {
+        $client = Client::find($client_id);
+        if (!$client) {
+            return $this->error('', 'The client you want to delete doesn\'t exist', 401);
+        }
+        $client->delete();
+        return $this->success([
+            'client' => $client,
+        ], "Client deleted successfully");
+    }
+    //executed by the client
+    public function showProfile($client_id)
+    {
+        if (Auth::guard('client')->user()->id !== (int)$client_id) {
             return $this->error('', 'You are unauthorized to make this request', 401);
         }
         $client = Auth::guard('client')->user();
-        if (is_null($client)) {
-            return response()->json(['message' => 'Client not found'], 404);
+        if (!$client) {
+            return $this->error('', 'Client not found', 401);
         }
-        return response()->json(['data' => $client], 200);
+        return $this->success([
+            'client' => $client,
+        ], "Client profile found");
+    }
+
+    public function search($url)
+    {
+        return Client::where("full_name", "like", "%" . $url . "%")->get();
     }
 }
