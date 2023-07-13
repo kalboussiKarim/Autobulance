@@ -14,6 +14,8 @@ use App\Models\TransactionReparateur;
 
 class LocalisationController extends Controller
 {
+    use HttpResponses;
+
     /**
      * Display a listing of the resource.
      */
@@ -21,9 +23,12 @@ class LocalisationController extends Controller
     {
         //get all localisation of autobulances managed by auth admin ;
         $staff =Auth::guard('staff')->user();
-        $localisations =Localisation::join('transaction_reparateurs', 'transaction_reparateurs.autobulance_id',"=",'localisations.autobulance_id')
-       ->where('staff_id',$staff['id'])->first();
-       // ->where('transaction_reparateurs.detached_at',null)->get();
+        $localisations =Localisation::select
+        ('transaction_reparateurs.autobulance_id', 'localisations.latitude', 'localisations.longitude')
+        ->join('transaction_reparateurs', 'transaction_reparateurs.autobulance_id',"=",'localisations.autobulance_id')
+       
+       ->where('transaction_reparateurs.detached_at',null)
+       ->where('transaction_reparateurs.staff_id', $staff['id'])->get(["transaction_reparateurs.autobulance_id","localisations.latitude","localisations.longitude"]);
         return  response()->json([
             'data' => $localisations,
         ], 200);
@@ -77,14 +82,15 @@ class LocalisationController extends Controller
         $staff=Auth::guard('staff')->user();
         $isOwn =TransactionReparateur::where('staff_id',$staff['id'])->where('autobulance_id',$id)->where('detached_at',null)->first();
         if ($isOwn){
-            $localisation = Localisation::where('autobulance_id',$autobulance['id'])->first();
+            $localisation = Localisation::where('autobulance_id',$id)->first();
         if (!$localisation){
             return $this->error('', ' not found  autobulance', 404);
         }
         else {
-            return $this->success([
-                'localisation' => $localisation,
-            ], "  show Localisation ", 200);
+            return response()->json([
+                'data' => $localisation,
+            ], 200);
+    
         }
         
     }
