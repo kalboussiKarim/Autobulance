@@ -12,6 +12,7 @@ use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceEquipmentController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\LocalisationController;
 use App\Http\Controllers\TransactionReparateurController;
 use App\Models\ServiceEquipment;
 use Illuminate\Http\Request;
@@ -69,16 +70,18 @@ Route::group(['prefix' => 'role'], function () {
 Route::group(['prefix' => 'staff'], function () {
     //everyone (done)
     Route::post('/login', [StaffController::class, 'login']);
+    Route::POST('/admin/register', [StaffController::class, 'adminRegister']);
     //auth staff only (done)
     Route::group(['middleware' => ['auth:staff']], function () {
         Route::POST('/logout', [StaffController::class, 'logout']);
         Route::get('/profile/{client_id}', [StaffController::class, 'showProfile']);
         //auth admins staff only (done)
         Route::group(['middleware' => ['check.identity:admin']], function () {
-            Route::get('/autobulances', [StaffController::class, 'getAutobulance']); /*this route is not tested */
             Route::POST('/register', [StaffController::class, 'register']);
             Route::put('/{staff_id}', [StaffController::class, 'edit']);
             Route::get('/{staff_id}', [StaffController::class, 'show']);
+            Route::get('/autobulances', [StaffController::class, 'getAutobulance']); /*this route is not tested */
+
         });
     });
 });
@@ -236,7 +239,15 @@ Route::group(['prefix' => 'tasks'], function () {
 /*****************************************************************************************************/
 /*****************************************************************************************************/
 
-
+Route::group(['prefix' => 'localisations'], function () {
+    Route::group(['middleware' => ['check.identity:manager']], function () {
+        Route::post('/', [LocalisationController::class, 'store']);
+    });
+    Route::group(['middleware' => ['check.identity:admin']], function () {
+        Route::get('/{id}', [LocalisationController::class, 'show']);
+        Route::get('/', [LocalisationController::class, 'index']);});
+        
+    });
 
 
 

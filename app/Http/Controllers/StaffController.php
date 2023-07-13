@@ -50,6 +50,37 @@ class StaffController extends Controller
         if (!$role) {
             return $this->error('', 'the role you specified doesn\'t exist', 401);
         }
+        if ($role['name'] =="admin"){
+            return $this->error('', 'server error ', 500);
+        }
+        else {
+        $staff_member = Staff::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'date_of_birth' => $request->date_of_birth,
+            'salary' => $request->salary,
+            'role_id' => $role['id'],
+            'position' => $request->position,
+            'password' => Hash::make($request->password),
+        ]);
+        //$mailer =  new MailController();
+        //$mailer->index($request);
+        return $this->success([
+            'staff_member' => $staff_member,
+            'token' => $staff_member->createToken('staff-token')->plainTextToken,
+        ], "Staff registration was successful", 201);}
+    }
+
+    public function adminRegister(StoreStaffRequest $request)
+    {
+        // return response()->json('Register functiton');
+        $request->validated($request->all());
+        $role = Role::where('name', $request->role)->first();
+        if (!$role) {
+            return $this->error('', 'the role you specified doesn\'t exist', 401);
+        }
+        if ($role['name']=="admin"){
         $staff_member = Staff::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -66,6 +97,11 @@ class StaffController extends Controller
             'staff_member' => $staff_member,
             'token' => $staff_member->createToken('staff-token')->plainTextToken,
         ], "Staff registration was successful", 201);
+    }
+    else {
+        return $this->error('', 'server error', 500);
+
+    }
     }
 
 
