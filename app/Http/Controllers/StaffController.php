@@ -104,7 +104,17 @@ class StaffController extends Controller
     }
     }
 
-
+    public function showStaffe (){
+        $admin = Auth::guard('staff')->user();
+        if ($admin) {
+           $staffAvailable = Staff::join('transaction_reparateurs', 'transaction_reparateurs.staff_id', '=', 'staff.id')->whereNull('transaction_reparateurs.detached_at')->get();
+            return $this->success([
+                'message' => 'You have succesfully been logged out as a staff and your token(s) has been removed'
+            ]);
+        } else {
+            return $this->error('', 'The staff member is not logged in', 401);
+        }
+    }
     public function logout()
     {
         $staff = Auth::guard('staff')->user();
