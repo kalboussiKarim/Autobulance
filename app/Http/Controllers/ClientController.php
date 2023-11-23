@@ -7,6 +7,8 @@ use App\Models\Client;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Traits\HttpResponses;
+use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Ramsey\Uuid\Type\Integer;
@@ -53,7 +55,7 @@ class ClientController extends Controller
         $request->validated($request->only(['email', 'password']));
         $client = Client::where('email', $request->email)->first();
         if (!$client || !Hash::check($request->password, $client->password)) {
-            return $this->error('', 'Credentials do not match', 401);
+            return $this->error('', 'Credentials do not match', 422);
         }
         return $this->success([
             'client' => $client,
@@ -129,5 +131,18 @@ class ClientController extends Controller
     public function search($url)
     {
         return Client::where("full_name", "like", "%" . $url . "%")->get();
+    }
+
+    public function localisation(Request $request)
+    {
+         if ($request->has(['latitude', 'longitude'])) {
+         $localisation  =   new \App\Models\localisation ([
+         'latitude' => $request->latitude,
+         'longitude' => $request->longitude,
+         'autobulance_id'=> 1 
+     ]);
+        event( new  \App\Events\SendLocalisation());
+        return response()->json(['data' => $localisation], 200);
+    }
     }
 }

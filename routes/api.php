@@ -42,6 +42,8 @@ Route::group(['prefix' => 'client'], function () {
     //logged in admins only (done)
     Route::group(['middleware' => ['check.identity:admin']], function () {
         Route::get('/', [ClientController::class, 'index']);
+
+
         Route::get('/{client_id}', [ClientController::class, 'show']);
         Route::delete('/{client_id}', [ClientController::class, 'destroy']);
         Route::get('/search/{url}', [ClientController::class, 'search']);
@@ -51,6 +53,7 @@ Route::group(['prefix' => 'client'], function () {
     Route::group(['middleware' => ['auth:client']], function () {
         Route::POST('/logout', [ClientController::class, 'logout']);
         Route::get('/profile/{client_id}', [ClientController::class, 'showProfile']);
+        Route::put('/', [ClientController::class, 'edit']);
     });
 });
 /*****************************************************************************************************/
@@ -89,9 +92,10 @@ Route::group(['prefix' => 'staff'], function () {
 /*****************************************************************************************************/
 Route::group(['prefix' => 'breakdown'], function () {
     //auth admins staff only (done)
+    Route::get('/', [BreakdownController::class, 'index']);
     Route::group(['middleware' => ['check.identity:admin']], function () {
         Route::post('/', [BreakdownController::class, 'store']);
-        Route::get('/', [BreakdownController::class, 'index']);
+        
         Route::put('/{breakdown_id}', [BreakdownController::class, 'edit']);
         Route::get('/search/{url}', [BreakdownController::class, 'search']);
         Route::delete('/{breakdown_id}', [BreakdownController::class, 'destroy']);
@@ -140,13 +144,13 @@ Route::group(['prefix' => 'service'], function () {
 Route::group(['prefix' => 'request'], function () {
     //logged in clients only (done)
     Route::group(['prefix' => 'client'], function () {
-        Route::group(['middleware' => ['auth:client']], function () {
+       Route::group(['middleware' => ['auth:client']], function () {
             Route::post('/', [RequestController::class, 'store']);
             Route::get('/', [RequestController::class, 'index']);
             Route::get('/{request_id}', [RequestController::class, 'show']);
             Route::put('/{request_id}', [RequestController::class, 'edit']);
             Route::delete('/{request_id}', [RequestController::class, 'destroy']);
-        });
+         });
     });
     //auth admins staff only (done)
     Route::group(['middleware' => ['check.identity:admin']], function () {
@@ -240,6 +244,8 @@ Route::group(['prefix' => 'tasks'], function () {
 /*****************************************************************************************************/
 
 Route::group(['prefix' => 'localisations'], function () {
+    Route::get('/loc', [ClientController::class, 'localisation']);
+
     Route::group(['middleware' => ['check.identity:manager']], function () {
         Route::post('/', [LocalisationController::class, 'store']);
     });
