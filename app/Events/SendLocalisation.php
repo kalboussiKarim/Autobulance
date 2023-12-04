@@ -44,6 +44,6 @@ class SendLocalisation implements ShouldBroadcast
  public function broadcastWith(): array
 {
 
-    return [ "longitude"=>10 , "lattitude"=>10 ,"autobulance_id"=>1 , "manager"=>"manager_name","manager_tel"=>1122233 , "autobulance_mat"=>"124TUN141"];
+    return [ "longitude"=>10 , "lattitude"=>45 ,"autobulance_id"=>1 , "manager"=>"manager_name","manager_tel"=>1122233 , "autobulance_mat"=>"124TUN141"];
 }
 }

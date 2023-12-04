@@ -41,10 +41,10 @@ Route::group(['prefix' => 'client'], function () {
     Route::POST('/login', [ClientController::class, 'login']);
     //logged in admins only (done)
     Route::group(['middleware' => ['check.identity:admin']], function () {
-        Route::get('/', [ClientController::class, 'index']);
+      //  Route::get('/', [ClientController::class, 'index']);
 
 
-        Route::get('/{client_id}', [ClientController::class, 'show']);
+     //   Route::get('/{client_id}', [ClientController::class, 'show']);
         Route::delete('/{client_id}', [ClientController::class, 'destroy']);
         Route::get('/search/{url}', [ClientController::class, 'search']);
         Route::put('/{client_id}', [ClientController::class, 'edit']);
@@ -52,7 +52,7 @@ Route::group(['prefix' => 'client'], function () {
     //logged in clients only (done)
     Route::group(['middleware' => ['auth:client']], function () {
         Route::POST('/logout', [ClientController::class, 'logout']);
-        Route::get('/profile/{client_id}', [ClientController::class, 'showProfile']);
+        Route::get('/profile', [ClientController::class, 'showProfile']);
         Route::put('/', [ClientController::class, 'edit']);
     });
 });

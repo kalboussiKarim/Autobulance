@@ -114,11 +114,11 @@ class ClientController extends Controller
         ], "Client deleted successfully");
     }
     //executed by the client
-    public function showProfile($client_id)
+    public function showProfile()
     {
-        if (Auth::guard('client')->user()->id !== (int)$client_id) {
-            return $this->error('', 'You are unauthorized to make this request', 401);
-        }
+        // if (Auth::guard('client')->user()->id !== (int)$client_id) {
+        //     return $this->error('', 'You are unauthorized to make this request', 401);
+        // }
         $client = Auth::guard('client')->user();
         if (!$client) {
             return $this->error('', 'Client not found', 401);
