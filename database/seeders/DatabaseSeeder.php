@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleSeeder::class);
         $this->call(StateSeeder::class);
           $this->call(BreakdownSeeder::class);
+           $this->call(ServiceSeeder::class);
+            $this->call(EquipmentSeeder::class); 
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([

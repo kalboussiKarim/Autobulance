@@ -39,6 +39,8 @@ Route::group(['prefix' => 'client'], function () {
     //everyone (done)
     Route::POST('/register', [ClientController::class, 'register']);
     Route::POST('/login', [ClientController::class, 'login']);
+    Route::put('/profile', [ClientController::class, 'editProfile']);
+    
     //logged in admins only (done)
     Route::group(['middleware' => ['check.identity:admin']], function () {
       //  Route::get('/', [ClientController::class, 'index']);
@@ -53,7 +55,9 @@ Route::group(['prefix' => 'client'], function () {
     Route::group(['middleware' => ['auth:client']], function () {
         Route::POST('/logout', [ClientController::class, 'logout']);
         Route::get('/profile', [ClientController::class, 'showProfile']);
-        Route::put('/', [ClientController::class, 'edit']);
+        Route::POST('/password', [ClientController::class, 'ressetPassword']);
+        
+       
     });
 });
 /*****************************************************************************************************/
@@ -147,6 +151,7 @@ Route::group(['prefix' => 'request'], function () {
        Route::group(['middleware' => ['auth:client']], function () {
             Route::post('/', [RequestController::class, 'store']);
             Route::get('/', [RequestController::class, 'index']);
+            Route::get('/task', [RequestController::class, 'clientRequest']);
             Route::get('/{request_id}', [RequestController::class, 'show']);
             Route::put('/{request_id}', [RequestController::class, 'edit']);
             Route::delete('/{request_id}', [RequestController::class, 'destroy']);
@@ -187,10 +192,11 @@ Route::group(['prefix' => 'breakdownRequest'], function () {
 /*****************************************************************************************************/
 /*****************************************************************************************************/
 Route::group(['prefix' => 'autobulance'], function () {
+     Route::post('/', [AutobulanceController::class, 'store']);
     //auth admins staff only (done)
     Route::group(['middleware' => ['check.identity:admin']], function () {
         Route::get('/', [AutobulanceController::class, 'adminAutobulances']); /* admin ma yra ken les autoblances teb3inou tnajem tsameha index*/
-        Route::post('/', [AutobulanceController::class, 'store']);
+       
         Route::put('/{autobulance_id}', [AutobulanceController::class, 'edit']);
         Route::delete('/{autobulance_id}', [AutobulanceController::class, 'destroy']);
         Route::get('/{autobulance_id}', [AutobulanceController::class, 'show']);
@@ -227,17 +233,19 @@ Route::group(['prefix' => 'transactions'], function () {
 /*****************************************************************************************************/
 /*****************************************************************************************************/
 Route::group(['prefix' => 'serviceEquipment'], function () {
+            Route::post('/', [ServiceEquipmentController::class, 'store']);
+
     Route::group(['middleware' => ['check.identity:admin']], function () {
-        Route::post('/', [ServiceEquipmentController::class, 'store']);
     });
 });
 /*****************************************************************************************************/
 /*****************************************************************************************************/
 Route::group(['prefix' => 'tasks'], function () {
-    Route::group(['middleware' => ['check.identity:admin']], function () {
-        Route::post('/', [TaskController::class, 'store']);
+     Route::post('/', [TaskController::class, 'store']);
         Route::get('/', [TaskController::class, 'index']);
         Route::post('/price/{id}', [TaskController::class, 'totalPrice']);
+    Route::group(['middleware' => ['check.identity:admin']], function () {
+       
     });
 });
 /*****************************************************************************************************/

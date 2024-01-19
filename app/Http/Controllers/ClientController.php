@@ -90,6 +90,19 @@ class ClientController extends Controller
         ], "Client updated successfully");
     }
 
+     public function editProfile(UpdateClientRequest $request)
+    {
+        $client = Auth::guard('client')->user();
+        if (!$client) {
+            return $this->error('', 'The client you want to edit is not found', 401);
+        }
+        $new_data = $request->validated();
+        $client->update($new_data);
+        return $this->success([
+            'client' => $client,
+        ], "Client updated successfully");
+    }
+
     public function show($client_id)
     {
         $client = Client::find($client_id);
@@ -144,5 +157,19 @@ class ClientController extends Controller
         event( new  \App\Events\SendLocalisation());
         return response()->json(['data' => $localisation], 200);
     }
+    }
+    public function ressetPassword(Request $request)
+    {
+          if ($request->has('password')) {
+            $client = Auth::guard('client')->user();
+        if ($client) {
+             $user->update(['password' => Hash::make($request->password)]);
+            return $this->success([], "You have succesfully resset your password ");
+        } else {
+            return $this->error('', 'The client is not logged in', 401);
+        }
+          }else{
+             return $this->error('', $request, 405);
+          }
     }
 }

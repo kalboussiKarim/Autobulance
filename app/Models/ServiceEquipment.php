@@ -10,4 +10,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ServiceEquipment extends Model
 {
     use HasFactory/*, SoftDeletes*/;
+    protected $fillable = [
+        'quantity',
+        'service_id',
+        'equipment_id',
+        'task_id'
+    ];
 }

@@ -74,13 +74,14 @@ class TaskController extends Controller
     {
         $request->validated($request->all());
         $admin = Auth::guard('staff')->user();
-        $transaction_admin = TransactionReparateur::where('staff_id', $admin['id'])
-            ->where('autobulance_id', $request->autobulance_id)
-            ->where('detached_at', null)
-            ->first();
-        if (!$transaction_admin) {
-            return $this->error('', 'the autobulance you specified doesn\'t exist', 401);
-        }
+        
+        // $transaction_admin = TransactionReparateur::where('staff_id', $admin['id'])
+        //     ->where('autobulance_id', $request->autobulance_id)
+        //     ->where('detached_at', null)
+        //     ->first();
+        // if (!$transaction_admin) {
+        //     return $this->error('', 'the autobulance you specified doesn\'t exist', 401);
+        // }
         $client_request = Request::where('id', $request->request_id)->first();
         if (!$client_request) {
             return $this->error('', "client request not found", 401);

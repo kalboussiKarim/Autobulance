@@ -8,6 +8,9 @@ use App\Http\Requests\AdminStoreRequestRequest;
 use App\Http\Requests\UpdateRequestRequest;
 use App\Http\Requests\AdminUpdateRequestRequest;
 use App\Models\Client;
+// use App\Models\;
+use App\Models\Task;
+
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,10 +27,40 @@ class RequestController extends Controller
         if (!$client) {
             return $this->error('', 'Client not found', 401);
         }
+        
         $requests = Request::where('client_id', $client['id'])->get();
+        foreach ($requests as $request) {
+            $task = Task::where('request_id', $request['id']);
+        }
+        
         return $this->success([
             'requests' => $requests,
         ], "Request found successfully");
+    }
+
+     public function clientRequest()
+    {
+        $client = Auth::guard('client')->user();
+        if (!$client) {
+            return $this->error('', 'Client not found', 401);
+        }
+        
+        $requests = Request::where('client_id', $client['id'])->get();
+        $tasks = array();
+        foreach ($requests as $request) {
+            $task = Task::where('request_id', $request['id'])->first();
+            
+            if ($task!= null){
+                $task->load('autobulance' , 'services','request');
+                array_push($tasks, $task);
+            }
+            
+            
+        }
+        
+        return $this->success([
+           'requests' => $tasks,
+        ], "tasks found successfully");
     }
 
     public function adminIndex()
